@@ -23,7 +23,7 @@ export default function CyberCard({
     <div className={`relative bg-[#0d0f14]/80 border border-brand-primary/15 rounded-xl p-5 md:p-6 backdrop-blur-2xl shadow-[0_0_40px_rgba(6,182,212,0.05)] overflow-hidden flex flex-col gap-4 text-left ${className}`}>
       {/* Active Grid Accent inside card */}
       {showGrid && (
-        <div className="absolute inset-0 opacity-[0.03] bg-[linear-gradient(to_right,#06B6D4_1px,transparent_1px),linear-gradient(to_bottom,#06B6D4_1px,transparent_1px)] bg-[size:16px_16px] pointer-events-none z-0" />
+        <div className="absolute inset-0 opacity-[0.03] bg-[linear-gradient(to_right,#06B6D4_1px,transparent_1px),linear-gradient(to_bottom,#06B6D4_1px,transparent_1px)] bg-size-[16px_16px] pointer-events-none z-0" />
       )}
       
       {/* Decorative Corner Brackets */}

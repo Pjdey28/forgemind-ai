@@ -2,7 +2,7 @@
 
 **Project Title:** ForgeMind AI (The Industrial Knowledge Brain)  
 **Hackathon Target:** ET AI Hackathon 2026 — Problem Statement 8  
-**Current Status:** 🟢 Active Development (Milestones 1 & 5 Complete, 2-4 Integrated & In Progress)
+**Current Status:** 🟢 Active Development (Milestones 1, 2, 3, 4 & 5 Frontend Complete; Backend Integration Pending)
 
 ---
 
@@ -12,7 +12,7 @@ The system spans a hybrid real-time telemetry, AI reasoning, and graph networkin
 
 | Tier | Technology | Purpose / Application |
 | :--- | :--- | :--- |
-| **Frontend Framework** | **Next.js 16.2 (Turbopack) & React 19** | App Router, Server/Client components hydration, and performance routing. |
+| **Frontend Framework** | **Next.js 16.2 (App Router) & React 19** | App Router, Server/Client components hydration, and performance routing. |
 | **Styles & Motion** | **TailwindCSS v4 & Framer Motion** | Cyberpunk HUD visuals, glassmorphic panels, dynamic animations, and transitions. |
 | **3D Rendering** | **Three.js & GSAP** | Floating 3D living neural network visual background. |
 | **Backend Framework** | **Express.js (Node.js v20+)** | REST API gateway, secure cookie auth, document uploads router. |
@@ -29,10 +29,10 @@ The system spans a hybrid real-time telemetry, AI reasoning, and graph networkin
 ```mermaid
 graph TD
     P1[Phase 1: Auth & Core Setup] -->|100% Done| P2[Phase 2: Ingestion & OCR]
-    P2 -->|70% Done| P3[Phase 3: RAG & ChromaDB]
-    P3 -->|50% Done| P4[Phase 4: Knowledge Graph]
-    P4 -->|60% Done| P5[Phase 5: Intelligence & Alerts]
-    P5 -->|90% Done| P6[Phase 6: DevOps & Launch]
+    P2 -->|100% Frontend Done| P3[Phase 3: RAG & ChromaDB]
+    P3 -->|100% Frontend Done| P4[Phase 4: Knowledge Graph]
+    P4 -->|100% Frontend Done| P5[Phase 5: Intelligence & Alerts]
+    P5 -->|100% Frontend Done| P6[Phase 6: DevOps & Launch]
 ```
 
 ---
@@ -56,13 +56,14 @@ graph TD
 *Upload, parse, and OCR unstructured operational files into indexable vectors.*
 
 - **Required Tech Stack:** Multer, Tesseract.js / PDF-parse, Mammoth (docx extractor), Cloudinary SDK.
-- **Current Completion:** 🟡 **70% Progress** (UI Complete, Backend integration in progress)
+- **Current Completion:** 🟢 **100% Frontend Complete** (Backend integration pending)
 - **Milestone Checklist:**
-  - [x] Designed drag-and-drop file dropzone in the dashboard interface with upload inputs.
+  - [x] Designed drag-and-drop file dropzone in the dedicated `/documents` route view.
   - [x] Programmed interactive uploads index table displaying filename, size, format, upload date, and file deletion action.
-  - [x] Built simulated asynchronous ingestion loop status tags (`PENDING` $\rightarrow$ `INDEXING` $\rightarrow$ `OCR_DONE`) linked to live SCADA terminal log notifications.
+  - [x] Built simulated asynchronous ingestion loop status tags (`PENDING` $\rightarrow$ `INDEXING` $\rightarrow$ `OCR_DONE`) linked to document table state changes.
   - [x] Programmed document filter search input to query titles/formats locally.
   - [x] Configured backend Multer memory storage middleware (`multer.middleware.js`) to handle file uploads.
+  - [x] Built full-fidelity side overlay Document Preview & Metadata Inspector drawer.
   - [ ] Implement backend document text extractors (Mammoth for docx, PDF-parse for PDFs).
 
 ---
@@ -71,11 +72,12 @@ graph TD
 *Construct semantic search pipelines and configure Gemini synthesizers.*
 
 - **Required Tech Stack:** ChromaDB, Gemini 1.5 Flash API, LangChain / LlamaIndex, OpenAI Embeddings.
-- **Current Completion:** 🟡 **50% Progress** (Interface Integrated & Simulated)
+- **Current Completion:** 🟢 **100% Frontend Complete** (Backend integration pending)
 - **Milestone Checklist:**
-  - [x] Developed UI prompt engine chat terminal on the dashboard with typewriter animation streaming responses.
+  - [x] Developed dedicated `/chat` sub-page route layout.
+  - [x] Developed UI prompt engine chat terminal on the chat page with typewriter animation streaming responses.
   - [x] Designed visual RAG source citations mapping text segments back to specific manual file coordinates (e.g. `[Manual.pdf:Page 4]`).
-  - [x] Formulated preset prompt answers for common manual searches (Zone B bypass, compressor bearing limits, etc.).
+  - [x] Created interactive console preset query button cards to prompt standard queries instantly.
   - [ ] Implement backend semantic search endpoints querying HNSW cosine distance matrices inside ChromaDB.
   - [ ] Set up the Gemini prompt pipeline wrapper to synthesize clean answers from matching vector context.
 
@@ -85,8 +87,9 @@ graph TD
 *Build relational graph pipelines mapping plant assets to documentation.*
 
 - **Required Tech Stack:** Neo4j Aura (Graph Database), Cypher Query Language, Neo4j Driver (JS), D3.js / SVG Canvas.
-- **Current Completion:** 🟡 **60% Progress** (UI Graph Canvas Complete)
+- **Current Completion:** 🟢 **100% Frontend Complete** (Backend integration pending)
 - **Milestone Checklist:**
+  - [x] Created dedicated `/graph` sub-page route layout.
   - [x] Constructed interactive SVG Neo4j Graph canvas showing relationship edges between CAD drawings, rules, and telemetry.
   - [x] Added node hover focus loops to highlight direct neighbors and dim unrelated connections.
   - [x] Built property popup drawer to display metadata summaries (ID, coordinates, description) for selected nodes.
@@ -99,14 +102,15 @@ graph TD
 *Display live sensor telemetry, predictive alarms, and compliance dial monitors.*
 
 - **Required Tech Stack:** Lucide, Framer Motion, HTML5 SVG, WebSockets (sensor telemetry).
-- **Current Completion:** 🟢 **95% Completed**
+- **Current Completion:** 🟢 **100% Frontend Completed**
 - **Milestone Checklist:**
-  - [x] Engineered custom SVG SCADA line graph showing real-time load capacity signals.
-  - [x] Built active machinery status indicators (ONLINE, WARNING, OFFLINE) with location details.
-  - [x] Integrated power switches in the **Equipment Overview** to turn assets ON/OFF in real-time, immediately altering the SCADA terminal log stream and shifting line graph telemetry loads.
+  - [x] Engineered dedicated `/compliance` safety parameters route layout.
+  - [x] Refactored `/dashboard` route page to focus purely on top metrics load cards, SCADA operations graph, control switches, and terminal logs.
+  - [x] Built active machinery status indicators (ONLINE, WARNING, OFFLINE) with location details and power toggle switch controls.
   - [x] Developed **Maintenance Intelligence** alert lists with critical severity priority badges.
   - [x] Built AI Diagnostics drawer showing **Root Cause Analysis (RCA)** and **Preventive Action Instructions** for selected incidents.
-  - [x] Implemented concentric ASTM compliance gauge calculated dynamically based on safety checklist checkboxes (SSL, Neo4j, ASTM, Firewall).
+  - [x] Implemented concentric ASTM compliance gauge calculated dynamically based on safety checklist checkboxes (SSL, Neo4j, ASTM, Firewall) under `/compliance`.
+  - [x] Created dedicated `/settings` system configurations page with parameter adjustment sliders.
 
 ---
 

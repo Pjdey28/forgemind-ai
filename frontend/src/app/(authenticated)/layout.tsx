@@ -50,10 +50,11 @@ export default function AuthenticatedLayout({
 
   const navItems = [
     { href: "/dashboard", label: "Dashboard", subtitle: "Operator Mission Control", icon: LayoutDashboard },
-    { href: "/dashboard#scada", label: "SCADA Logs", subtitle: "Real-time Telemetry sensor feeds", icon: Terminal },
-    { href: "/dashboard#graph", label: "Neo4j Graph", subtitle: "Knowledge network explorer", icon: Network },
-    { href: "/dashboard#telemetry", label: "Metrics & Health", subtitle: "Hardware status reports", icon: Activity },
-    { href: "/dashboard#compliance", label: "ASTM Settings", subtitle: "Safety parameters", icon: Settings },
+    { href: "/documents", label: "Documents", subtitle: "Ingestion Core & OCR Index", icon: Terminal },
+    { href: "/graph", label: "Knowledge Graph", subtitle: "Neo4j relationship network", icon: Network },
+    { href: "/chat", label: "AI Assistant", subtitle: "RAG Prompt Engine", icon: Activity },
+    { href: "/compliance", label: "Compliance & Safety", subtitle: "ASTM / OISD Parameters", icon: ShieldCheck },
+    { href: "/settings", label: "Settings", subtitle: "System configurations", icon: Settings },
   ];
 
   const handleLogout = () => {
