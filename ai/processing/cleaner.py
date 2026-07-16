@@ -1,10 +1,10 @@
 import re
 
-
 class TextCleaner:
-
     @staticmethod
     def clean(text: str) -> str:
+        if not text:
+            return ""
         text = text.replace("\x00", "")
         text = text.replace("\t", " ")
         text = re.sub(r"\s+", " ", text)

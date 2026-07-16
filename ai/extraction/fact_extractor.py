@@ -21,7 +21,7 @@ class FactExtractor:
 
         result = self.llm.generate_json(
 
-            prompt=chunk.content,
+            prompt=chunk.text,
 
             system_prompt=FACT_EXTRACTION_PROMPT
 

@@ -21,7 +21,7 @@ class RelationshipExtractor:
 
         result = self.llm.generate_json(
 
-            prompt=chunk.content,
+            prompt=chunk.text,
 
             system_prompt=RELATIONSHIP_EXTRACTION_PROMPT
 

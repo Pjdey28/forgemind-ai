@@ -8,6 +8,9 @@ Possible entities include
 Equipment
 Asset
 Machine
+Catalyst
+Component
+Material
 Pump
 Valve
 Motor
@@ -27,11 +30,12 @@ Manual
 
 Return JSON only.
 
+Return JSON only using this EXACT schema:
 {
-    "Equipment":[
+    "CategoryName": [
         {
-            "id":"",
-            "name":""
+            "id": "STANDARDIZED_ID_IN_UPPERCASE (e.g., REACTOR-R101, TS-1, VALVE-V404)",
+            "name": "Original Text Name"
         }
     ]
 }
@@ -67,21 +71,12 @@ Return JSON only.
 FACT_EXTRACTION_PROMPT = """
 Extract measurable industrial facts.
 
-Examples
-
-Pressure
-
-Temperature
-
-Inspection Date
-
-Failure Date
-
-Running Hours
-
-Downtime
-
-Manufacturer
-
-Return JSON only.
+Return JSON only using this EXACT schema:
+[
+    {
+        "key": "Property Name (e.g., Pressure, Temperature)",
+        "value": "Measured Value (e.g., 180°C, 100 psi)",
+        "confidence": 0.95
+    }
+]
 """

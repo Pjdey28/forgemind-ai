@@ -2,7 +2,7 @@ from parsers.pdf_parser import PDFParser
 from parsers.docx_parser import DOCXParser
 from parsers.excel_parser import ExcelParser
 from parsers.image_parser import ImageParser
-
+from parsers.txt_parser import TXTParser
 
 class ParserFactory:
 
@@ -23,7 +23,8 @@ class ParserFactory:
 
             ".jpg": ImageParser(),
 
-            ".jpeg": ImageParser()
+            ".jpeg": ImageParser(),
+            ".txt": TXTParser()
 
         }
 

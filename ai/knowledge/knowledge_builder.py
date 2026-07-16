@@ -1,77 +1,23 @@
-from knowledge.knowledge_models import (
-    KnowledgeObject,
-    KnowledgeNode,
-    KnowledgeEdge,
-    KnowledgeFact
-)
-
+from knowledge.knowledge_models import KnowledgeObject, KnowledgeNode, KnowledgeEdge, KnowledgeFact
 
 class KnowledgeBuilder:
-
-    def build(self, chunk):
-
+    def build(self, extraction_result):
         knowledge = KnowledgeObject()
 
-        entities = chunk.entities
-
-        for entity_type, values in entities.items():
-
-            if isinstance(values, list):
-
-                for value in values:
-
-                    if isinstance(value, dict):
-
-                        node = KnowledgeNode(
-
-                            id=value.get(
-                                "id",
-                                value.get(
-                                    "name",
-                                    str(value)
-                                )
-                            ),
-
-                            label=entity_type,
-
-                            properties=value
-
-                        )
-
-                    else:
-
-                        node = KnowledgeNode(
-
-                            id=str(value),
-
-                            label=entity_type
-
-                        )
-
-                    knowledge.nodes.append(node)
-
-        for relation in chunk.relationships:
-
-            knowledge.edges.append(
-
-                KnowledgeEdge(
-
-                    source=relation["source"],
-
-                    relation=relation["relation"],
-
-                    target=relation["target"]
-
-                )
-
+        # Iterate directly across the structured extraction arrays
+        for entity in extraction_result.entities:
+            knowledge.nodes.append(
+                KnowledgeNode(id=entity.id, label=entity.label, properties=entity.properties)
             )
 
-        for fact in chunk.facts:
+        for relation in extraction_result.relationships:
+            knowledge.edges.append(
+                KnowledgeEdge(source=relation.source, relation=relation.relation, target=relation.target, properties=relation.properties)
+            )
 
+        for fact in extraction_result.facts:
             knowledge.facts.append(
-
-                KnowledgeFact(**fact)
-
+                KnowledgeFact(subject=fact.key, predicate="has_value", value=str(fact.value))
             )
 
         return knowledge
