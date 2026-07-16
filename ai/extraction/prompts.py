@@ -41,29 +41,18 @@ Return JSON only using this EXACT schema:
 }
 """
 RELATIONSHIP_EXTRACTION_PROMPT = """
-Extract relationships.
+You are an Industrial Information Extraction engine.
+Extract relationships between the entities mentioned in the text.
 
-Examples
+IMPORTANT: You may ONLY use the following Entity IDs as your source and target. Do not invent new IDs.
+VALID ENTITY IDS: {entity_list}
 
-Pump P101
-MAINTAINED_BY
-Mechanical Team
-
-Pump P101
-LOCATED_IN
-Plant A
-
-Motor M2
-PART_OF
-Pump P101
-
-Return JSON only.
-
+Return JSON only using this EXACT schema:
 [
     {
-        "source":"",
-        "relation":"",
-        "target":""
+        "source": "MUST BE FROM VALID ENTITY IDS",
+        "relation": "RELATIONSHIP_TYPE_UPPERCASE",
+        "target": "MUST BE FROM VALID ENTITY IDS"
     }
 ]
 """
@@ -79,4 +68,27 @@ Return JSON only using this EXACT schema:
         "confidence": 0.95
     }
 ]
+"""
+UNIFIED_INDUSTRIAL_PROMPT = """
+You are an expert Industrial Information Ingestion Engine.
+Analyze the provided text fragment and extract Entities, Relationships, and measurable Facts.
+
+1. ENTITIES: Extract equipment, components, catalysts, chemicals, or valves. Assign a standardized, clean uppercase string as the ID.
+2. RELATIONSHIPS: Connect the extracted entities. The source and target strings MUST exactly match the normalized uppercase IDs you defined in the entities section.
+3. FACTS: Extract property conditions or setpoints.
+
+Return ONLY a valid JSON object matching this exact structural layout:
+{
+    "entities": [
+        {"id": "REACTOR-R101", "label": "Equipment", "name": "Reactor-R101"},
+        {"id": "TS-1", "label": "Catalyst", "name": "Titanium Silicate-1"}
+    ],
+    "relationships": [
+        {"source": "REACTOR-R101", "relation": "CONTAINS", "target": "TS-1"}
+    ],
+    "facts": [
+        {"key": "MAX_TEMPERATURE", "value": "180°C", "confidence": 0.95}
+    ]
+}
+Do not include conversational filler, markdown formatting blocks, or extra text wrapper objects.
 """

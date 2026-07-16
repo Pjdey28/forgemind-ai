@@ -18,17 +18,19 @@ class Neo4jRepository:
             )
 
     def merge_edge(self, edge):
-        query = """
-        MATCH (a {id:$source})
-        MATCH (b {id:$target})
-        MERGE (a)-[r:RELATED {type:$relation}]->(b)
+        # Dynamic interpolation of edge relationship types to draw visible arrows
+        query = f"""
+        MERGE (a {{id:$source}})
+        MERGE (b {{id:$target}})
+        MERGE (a)-[r:{edge.relation}]->(b)
+        SET r += $properties
         """
         with self.client.session() as session:
             session.run(
                 query,
                 source=edge.source,
                 target=edge.target,
-                relation=edge.relation
+                properties=edge.properties
             )
 
     def expand(self, entities, depth=2):
