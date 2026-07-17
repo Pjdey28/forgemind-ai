@@ -6,7 +6,7 @@ class Neo4jRepository:
 
     def merge_node(self, node, doc_id: str):
         query = f"""
-        MERGE (n:{node.label} {{id: $id}})
+        MERGE (n:`{node.label}` {{id: $id}})
         SET n += $properties, n.doc_id = $doc_id
         """
         with self.client.session() as session:
@@ -21,7 +21,7 @@ class Neo4jRepository:
         query = f"""
         MATCH (a {{id: $source}})
         MATCH (b {{id: $target}})
-        MERGE (a)-[r:{edge.relation}]->(b)
+        MERGE (a)-[r:`{edge.relation}`]->(b)
         SET r += $properties, r.doc_id = $doc_id
         """
         with self.client.session() as session:
