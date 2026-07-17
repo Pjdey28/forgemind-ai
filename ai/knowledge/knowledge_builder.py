@@ -4,6 +4,7 @@ from knowledge.knowledge_models import (
     KnowledgeEdge,
     KnowledgeFact
 )
+from knowledge.normalizer import KnowledgeNormalizer
 
 class KnowledgeBuilder:
     def build(self, extraction_result):
@@ -11,9 +12,7 @@ class KnowledgeBuilder:
 
         # 1. Process Nodes with aggressive ID normalization
         for entity in extraction_result.entities:
-            # Force the ID to be uppercase to prevent duplicates in Neo4j
-            normalized_id = str(entity.id).strip().upper()
-            
+            normalized_id = KnowledgeNormalizer.normalize_id(entity.id)
             knowledge.nodes.append(
                 KnowledgeNode(
                     id=normalized_id, 
@@ -24,10 +23,10 @@ class KnowledgeBuilder:
 
         # 2. Process Edges matching the normalized IDs
         for relation in extraction_result.relationships:
-            normalized_source = str(relation.source).strip().upper()
-            normalized_target = str(relation.target).strip().upper()
-            normalized_relation = str(relation.relation).strip().upper().replace(" ", "_")
-            
+            normalized_source = KnowledgeNormalizer.normalize_id(relation.source)
+            normalized_target = KnowledgeNormalizer.normalize_id(relation.target)
+            normalized_relation = KnowledgeNormalizer.normalize_relation(relation.relation)
+
             knowledge.edges.append(
                 KnowledgeEdge(
                     source=normalized_source, 
@@ -41,7 +40,7 @@ class KnowledgeBuilder:
         for fact in extraction_result.facts:
             knowledge.facts.append(
                 KnowledgeFact(
-                    subject=str(fact.key).strip().upper(), 
+                    subject=KnowledgeNormalizer.normalize_id(fact.key), 
                     predicate="HAS_VALUE", 
                     value=str(fact.value)
                 )

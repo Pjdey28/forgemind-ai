@@ -5,7 +5,8 @@ load_dotenv()
 
 class Settings:
     GROQ_API_KEY = os.getenv("GROQ_API_KEY")
-    MODEL_NAME = os.getenv("MODEL_NAME", "llama-3.3-70b-versatile")  # Stable Groq production model
+    MODEL_NAME = os.getenv("MODEL_NAME", "llama-3.3-70b-versatile") 
+    VISION_MODEL_NAME = os.getenv("VISION_MODEL_NAME", "llama-3.2-90b-vision-preview")
     TEMPERATURE = float(os.getenv("TEMPERATURE", 0.0))
     MAX_TOKENS = int(os.getenv("MAX_TOKENS", 4096))
     CHROMA_DB = os.getenv("CHROMA_DB", "./chroma_db")

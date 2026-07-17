@@ -1,9 +1,9 @@
 import json
 import re
 from groq import Groq
+from llm.output_parser import OutputParser
 from config.settings import settings
-from llm.exceptions import LLMResponseException
-
+import base64
 class GroqClient:
     def __init__(self):
         self.client = Groq(api_key=settings.GROQ_API_KEY)
@@ -25,14 +25,32 @@ class GroqClient:
 
     def generate_json(self, prompt: str, system_prompt: str) -> dict | list:
         raw_response = self.generate(prompt, system_prompt, temperature=0.0)
-        try:
-            return json.loads(raw_response)
-        except json.JSONDecodeError:
-            # Fallback regex helper matching structural JSON brackets if LLM provides conversational markdown wrapping
-            json_match = re.search(r"(\{.*\}|\[.*\])", raw_response, re.DOTALL)
-            if json_match:
-                try:
-                    return json.loads(json_match.group(1))
-                except json.JSONDecodeError:
-                    pass
-            raise LLMResponseException(f"Failed to parse clean structural JSON from Groq layout block: {raw_response}")
+        return OutputParser.parse_json(raw_response)
+
+    def generate_vision(self, image_path: str, prompt: str) -> str:
+        with open(image_path, "rb") as image_file:
+            encoded_string = base64.b64encode(image_file.read()).decode('utf-8')
+            
+        messages = [
+            {
+                "role": "user",
+                "content": [
+                    {"type": "text", "text": prompt},
+                    {
+                        "type": "image_url",
+                        "image_url": {
+                            "url": f"data:image/jpeg;base64,{encoded_string}",
+                        },
+                    },
+                ],
+            }
+        ]
+        
+        # Using Groq's high-speed vision model
+        response = self.client.chat.completions.create(
+            model=settings.VISION_MODEL_NAME,
+            messages=messages,
+            temperature=0.1,
+            max_tokens=2048
+        )
+        return response.choices[0].message.content

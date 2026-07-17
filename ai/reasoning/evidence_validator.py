@@ -1,11 +1,10 @@
 class EvidenceValidator:
     def validate(self, context):
-        documents = {}
-        for chunk in context["documents"]:
-            metadata = chunk.get("metadata", {})
-            # Fixed: Dictionary access
-            key = (metadata.get("filename"), chunk.get("id"))
-            documents[key] = chunk
-            
-        context["documents"] = list(documents.values())
+        # Filter out chunks that have empty content or corrupted metadata
+        valid_docs = []
+        for chunk in context.get("documents", []):
+            if chunk.get("content") and isinstance(chunk.get("metadata"), dict):
+                valid_docs.append(chunk)
+        
+        context["documents"] = valid_docs
         return context

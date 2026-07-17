@@ -1,14 +1,10 @@
 import re
 
-
 class KnowledgeNormalizer:
+    @staticmethod
+    def normalize_id(value: str) -> str:
+        return str(value).strip().upper()
 
-    def normalize_name(self, value: str):
-
-        value = value.strip()
-
-        value = re.sub(r"\s+", " ", value)
-
-        value = value.replace("-", " ")
-
-        return value.title()
+    @staticmethod
+    def normalize_relation(value: str) -> str:
+        return str(value).strip().upper().replace(" ", "_")

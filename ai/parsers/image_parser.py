@@ -1,12 +1,17 @@
 from parsers.base_parser import BaseParser
-from ocr.easyocr_engine import EasyOCREngine
+from llm.groq_client import GroqClient
 
 class ImageParser(BaseParser):
-    _ocr_engine = None
-
     def __init__(self):
-        if ImageParser._ocr_engine is None:
-            ImageParser._ocr_engine = EasyOCREngine()
+        self.llm = GroqClient()
+        self.vision_prompt = """
+        Analyze this industrial diagram, P&ID (Piping and Instrumentation Diagram), or schematic in extreme technical detail.
+        1. List all equipment tags, valves, pumps, and sensors by their ID.
+        2. Describe the physical topology: which equipment connects to which, and what is the flow direction?
+        3. Extract any tables, setpoints, or parameter thresholds visible in the image.
+        Output a highly structured, comprehensive technical report of everything visible.
+        """
 
     def parse(self, file_path: str) -> str:
-        return ImageParser._ocr_engine.extract(file_path)
+        # Transforms a flat image into rich semantic text for the chunker
+        return self.llm.generate_vision(file_path, self.vision_prompt)
