@@ -1,0 +1,20 @@
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from api.routes.upload import router as upload_router
+from api.routes.query import router as query_router
+from api.routes.health import router as health_router
+
+app = FastAPI(title="IndustrialBrain AI")
+
+# Add CORS Middleware to allow requests from Next.js or Node.js
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Adjust this to ["http://localhost:3000"] in production
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+app.include_router(upload_router)
+app.include_router(query_router)
+app.include_router(health_router)

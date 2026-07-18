@@ -1,0 +1,10 @@
+SECTION 1: HPPO Process Overview
+The industrial production of Propylene Oxide via the HPPO process utilizes hydrogen peroxide as an oxidizing agent.
+
+SECTION 2: Reactor Configuration
+The primary reactor is a fixed-bed tubular reactor designated as Reactor-R101.
+Reactor-R101 contains a Titanium Silicate-1 (TS-1) catalyst.
+
+SECTION 3: Thermal Heat Management
+Exothermic heat is managed by circulating cooling water through the reactor jacket.
+WARNING: The maximum allowable temperature for Reactor-R101 is 180°C. If temperatures exceed this limit, the emergency shutdown valve (Valve-V404) must be triggered to prevent catalyst deactivation.
