@@ -1,30 +1,80 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Network, HelpCircle, Activity } from "lucide-react";
 import CyberCard from "@/components/ui/CyberCard";
+import { getGraph } from "@/services/apiServices";
 
 export default function KnowledgeGraphPage() {
   const [hoveredNode, setHoveredNode] = useState<string | null>(null);
+  const [nodes, setNodes] = useState<any[]>([]);
+  const [edges, setEdges] = useState<any[]>([]);
 
-  const nodes = [
-    { id: "cad", label: "Plant CAD Specs", x: 100, y: 70, desc: "Vectorized CAD drawings and structural engineering blueprints" },
-    { id: "pdf", label: "Operations Manuals", x: 250, y: 50, desc: "1,204 Indexed manuals (compressor, generator, exchanger specs)" },
-    { id: "neo4j", label: "Neo4j Graph Hub", x: 400, y: 70, desc: "82,000 Linked relations mapping operational documents to physical sensors" },
-    { id: "scada", label: "SCADA Core Logs", x: 100, y: 220, desc: "Real-time logs stream mapping dynamic telemetry from sensor arrays" },
-    { id: "astm", label: "ASTM Regulatory Rules", x: 250, y: 245, desc: "National factory regulations & OISD compliance validation checks" },
-    { id: "rag", label: "Vector RAG Embeddings", x: 400, y: 220, desc: "ChromaDB database schema vector lookup and Gemini query synth loop" },
-  ];
+  useEffect(() => {
+    const fetchGraphData = async () => {
+      try {
+        const res = await getGraph();
+        if (res && res.data && res.data.nodes && res.data.nodes.length > 0) {
+          const apiNodes = res.data.nodes;
+          const apiEdges = res.data.edges;
 
-  const edges = [
-    { source: "cad", target: "pdf" },
-    { source: "cad", target: "scada" },
-    { source: "pdf", target: "neo4j" },
-    { source: "pdf", target: "rag" },
-    { source: "neo4j", target: "rag" },
-    { source: "scada", target: "astm" },
-    { source: "astm", target: "rag" },
-  ];
+          // Circular Layout positioning
+          const centerX = 250;
+          const centerY = 160;
+          const radius = 95;
+
+          const mappedNodes = apiNodes.map((n: any, idx: number) => {
+            const angle = (idx / apiNodes.length) * 2 * Math.PI;
+            return {
+              id: n.id,
+              label: n.id,
+              x: centerX + radius * Math.cos(angle),
+              y: centerY + radius * Math.sin(angle),
+              desc: `Extracted Relational Entity. Type: [${n.label}]. Properties: ${
+                Object.entries(n.properties)
+                  .filter(([k]) => k !== "doc_id")
+                  .map(([k, v]) => `${k}=${v}`)
+                  .join(", ") || "None"
+              }`
+            };
+          });
+
+          const mappedEdges = apiEdges.map((e: any) => ({
+            source: e.source,
+            target: e.target
+          })).filter((e: any) =>
+            mappedNodes.some((n: any) => n.id === e.source) &&
+            mappedNodes.some((n: any) => n.id === e.target)
+          );
+
+          setNodes(mappedNodes);
+          setEdges(mappedEdges);
+        } else {
+          // Fall back to default demo graph if database is empty
+          setNodes([
+            { id: "cad", label: "Plant CAD Specs", x: 100, y: 70, desc: "Vectorized CAD drawings and structural engineering blueprints" },
+            { id: "pdf", label: "Operations Manuals", x: 250, y: 50, desc: "1,204 Indexed manuals (compressor, generator, exchanger specs)" },
+            { id: "neo4j", label: "Neo4j Graph Hub", x: 400, y: 70, desc: "82,000 Linked relations mapping operational documents to physical sensors" },
+            { id: "scada", label: "SCADA Core Logs", x: 100, y: 220, desc: "Real-time logs stream mapping dynamic telemetry from sensor arrays" },
+            { id: "astm", label: "ASTM Regulatory Rules", x: 250, y: 245, desc: "National factory regulations & OISD compliance validation checks" },
+            { id: "rag", label: "Vector RAG Embeddings", x: 400, y: 220, desc: "ChromaDB database schema vector lookup and Llama 3 query synthesis loop" },
+          ]);
+          setEdges([
+            { source: "cad", target: "pdf" },
+            { source: "cad", target: "scada" },
+            { source: "pdf", target: "neo4j" },
+            { source: "pdf", target: "rag" },
+            { source: "neo4j", target: "rag" },
+            { source: "scada", target: "astm" },
+            { source: "astm", target: "rag" },
+          ]);
+        }
+      } catch (error) {
+        console.error("Failed to load graph network", error);
+      }
+    };
+    fetchGraphData();
+  }, []);
 
   return (
     <div className="flex flex-col gap-6 select-none font-mono">

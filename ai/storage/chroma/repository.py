@@ -32,3 +32,6 @@ class ChromaRepository:
                 })
                 
         return documents
+
+    def delete(self, doc_id: str):
+        self.collection.delete(where={"doc_id": doc_id})

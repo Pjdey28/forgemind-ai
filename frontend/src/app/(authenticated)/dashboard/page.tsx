@@ -7,6 +7,7 @@ import {
 import { motion } from "framer-motion";
 import CyberCard from "@/components/ui/CyberCard";
 import CyberBadge from "@/components/ui/CyberBadge";
+import { getDashboard, toggleEquipment } from "@/services/apiServices";
 
 interface EquipmentItem {
   id: string;
@@ -18,11 +19,46 @@ interface EquipmentItem {
 }
 
 export default function DashboardPage() {
+  const [stats, setStats] = useState<any>(null);
+  const statsRef = useRef<any>(null);
   // Telemetry status state
   const [chartData, setChartData] = useState<number[]>([45, 52, 48, 62, 58, 71, 65, 78, 72, 85, 80, 92, 88, 96, 90]);
   const [cpuTemp, setCpuTemp] = useState(42);
   const [systemLoad, setSystemLoad] = useState(74);
   const [bufferMem, setBufferMem] = useState(61);
+
+  useEffect(() => {
+    statsRef.current = stats;
+  }, [stats]);
+
+  useEffect(() => {
+    const fetchDashboardStats = async () => {
+      try {
+        const res = await getDashboard();
+        if (res && res.data) {
+          setStats(res.data);
+          if (res.data.cpuTemp) setCpuTemp(res.data.cpuTemp);
+          if (res.data.bufferMem) setBufferMem(res.data.bufferMem);
+          if (res.data.equipmentList) {
+            const mappedList = res.data.equipmentList.map((eq: any) => ({
+              id: eq._id,
+              name: eq.name,
+              type: eq.type,
+              plant: eq.plant,
+              status: eq.status,
+              load: eq.load
+            }));
+            setEquipmentList(mappedList);
+          }
+        }
+      } catch (error) {
+        console.error("Dashboard stats fetch failed:", error);
+      }
+    };
+    fetchDashboardStats();
+    const statsInterval = setInterval(fetchDashboardStats, 5000);
+    return () => clearInterval(statsInterval);
+  }, []);
 
   // Equipment state
   const [equipmentList, setEquipmentList] = useState<EquipmentItem[]>([
@@ -52,8 +88,10 @@ export default function DashboardPage() {
           ? Math.round(active.reduce((acc, e) => acc + e.load, 0) / active.length)
           : 0;
 
-        setSystemLoad(Math.min(100, Math.max(10, avgLoad + Math.floor(Math.random() * 8) - 4)));
-        setCpuTemp(Math.min(95, Math.max(30, Math.round(avgLoad * 0.7) + Math.floor(Math.random() * 5))));
+        const baseLoad = statsRef.current && statsRef.current.neuralCoreLoad ? statsRef.current.neuralCoreLoad : avgLoad;
+        setSystemLoad(Math.min(100, Math.max(10, baseLoad + Math.floor(Math.random() * 6) - 3)));
+        const baseTemp = statsRef.current && statsRef.current.cpuTemp ? statsRef.current.cpuTemp : 42;
+        setCpuTemp(Math.min(95, Math.max(30, baseTemp + Math.floor(Math.random() * 4) - 2)));
         
         return currentEq.map(e => {
           if (e.status === "ONLINE") {
@@ -128,30 +166,30 @@ export default function DashboardPage() {
   const areaD = `${pathD} L 300 100 L 0 100 Z`;
 
   // Toggle machinery health status controls
-  const handleToggleEquipment = (id: string, name: string) => {
-    setEquipmentList(prev => prev.map(eq => {
-      if (eq.id === id) {
-        const isTurningOn = eq.status === "OFFLINE";
-        const newStatus = isTurningOn ? "ONLINE" : "OFFLINE";
+  const handleToggleEquipment = async (id: string, name: string) => {
+    try {
+      const res = await toggleEquipment(id);
+      if (res && res.data) {
+        const updated = res.data;
+        const isTurningOn = updated.status === "ONLINE";
         
         setScadaLogs(logs => [
           ...logs,
           {
             id: Date.now(),
             prefix: isTurningOn ? "OK" : "WARN",
-            text: `${name} has been switched ${isTurningOn ? "ONLINE" : "OFFLINE"}. Adjusting SCADA telemetry parameters...`,
+            text: `${name} has been switched ${updated.status}. Adjusting SCADA telemetry parameters...`,
             status: isTurningOn ? "success" : "warning"
           }
         ]);
 
-        return {
-          ...eq,
-          status: newStatus,
-          load: isTurningOn ? 60 : 0
-        };
+        setEquipmentList(prev => prev.map(eq => 
+          eq.id === id ? { ...eq, status: updated.status, load: updated.load } : eq
+        ));
       }
-      return eq;
-    }));
+    } catch (error) {
+      console.error("Failed to toggle equipment status:", error);
+    }
   };
 
   return (
@@ -175,18 +213,20 @@ export default function DashboardPage() {
           </div>
         </CyberCard>
 
-        {/* Widget 2: RAM Buffer */}
+        {/* Widget 2: Indexed Documents */}
         <CyberCard className="p-4!" showGrid={false} showBrackets={true}>
           <div className="flex items-center justify-between text-[10px] text-brand-text-secondary">
-            <span>RAM WORKSPACE BUFFER</span>
+            <span>INDEXED DOCUMENTS</span>
             <Database className="h-4 w-4 text-brand-secondary" />
           </div>
           <div className="flex items-baseline justify-between mt-2">
-            <span className="text-2xl font-bold text-brand-text-primary tracking-tight">{bufferMem}%</span>
-            <span className="text-[9px] text-brand-text-secondary">19.5 GB / 32 GB</span>
+            <span className="text-2xl font-bold text-brand-text-primary tracking-tight">
+              {stats ? stats.totalDocuments : 3}
+            </span>
+            <span className="text-[9px] text-brand-text-secondary">ACTIVE INDICES</span>
           </div>
           <div className="h-1 bg-brand-bg rounded-full mt-3 overflow-hidden">
-            <div className="h-full bg-brand-secondary rounded-full transition-all duration-300" style={{ width: `${bufferMem}%` }} />
+            <div className="h-full bg-brand-secondary rounded-full w-full" style={{ width: stats && stats.totalDocuments > 0 ? "100%" : "30%" }} />
           </div>
         </CyberCard>
 
@@ -214,8 +254,12 @@ export default function DashboardPage() {
             <Network className="h-4 w-4 text-brand-success" />
           </div>
           <div className="flex items-baseline justify-between mt-2">
-            <span className="text-2xl font-bold text-brand-text-primary tracking-tight">82,000</span>
-            <span className="text-[9px] text-brand-success font-semibold">SYNCED</span>
+            <span className="text-2xl font-bold text-brand-text-primary tracking-tight">
+              {stats ? (stats.graphNodesCount + stats.graphEdgesCount).toLocaleString() : "82,000"}
+            </span>
+            <span className={`text-[9px] font-bold ${stats?.aiServiceStatus === "OFFLINE" ? "text-brand-danger" : "text-brand-success"}`}>
+              {stats ? stats.aiServiceStatus : "SYNCED"}
+            </span>
           </div>
           <div className="h-1 bg-brand-bg rounded-full mt-3 overflow-hidden">
             <div className="h-full bg-brand-success rounded-full w-full" />
@@ -328,11 +372,55 @@ export default function DashboardPage() {
 
       </div>
 
-      {/* 3. SCADA OPERATIONS TERMINAL LOGS */}
-      <div id="scada">
+      {/* 3. SYSTEM LOGS & DOCUMENTS ROW */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6" id="scada">
+        
+        {/* Recent Ingested Documents */}
         <CyberCard 
-          title="SCADA Real-Time Operations Terminal Logs" 
-          subtitle="Sensor log monitors and security checks log tracker"
+          title="Recent Ingested Documents" 
+          subtitle="Latest manuals and technical files registered in database"
+        >
+          <div className="w-full h-44 bg-brand-bg/50 border border-brand-primary/10 rounded-xl p-4 flex flex-col font-mono text-[10px] leading-relaxed overflow-hidden relative">
+            <div className="flex-1 overflow-y-auto pr-1 space-y-2 text-left scrollbar-thin">
+              {stats && stats.recentUploads && stats.recentUploads.length > 0 ? (
+                stats.recentUploads.map((doc: any, idx: number) => (
+                  <div key={doc._id || idx} className="flex items-center justify-between text-brand-text-secondary/95 border-b border-brand-primary/5 pb-1">
+                    <div className="flex items-center space-x-2">
+                      <span className="px-1 py-0.25 rounded text-[7px] font-extrabold shrink-0 border select-none bg-brand-primary/10 border-brand-primary/20 text-brand-primary">
+                        {doc.format ? doc.format.toUpperCase() : "TXT"}
+                      </span>
+                      <span className="break-all sm:break-normal text-brand-text-primary max-w-[150px] md:max-w-[200px] truncate" title={doc.filename}>
+                        {doc.filename}
+                      </span>
+                      <span className="text-[7.5px] text-brand-text-secondary">
+                        ({doc.chunksCount || 0} chunks)
+                      </span>
+                    </div>
+                    <div className="flex items-center space-x-2 shrink-0">
+                      <span className={`text-[7.5px] uppercase font-bold ${
+                        doc.status === "OCR_DONE" ? "text-brand-success" : "text-brand-warning animate-pulse"
+                      }`}>
+                        {doc.status || "OCR_DONE"}
+                      </span>
+                      <span className="text-[8px] text-brand-text-secondary">
+                        {new Date(doc.createdAt).toLocaleTimeString()}
+                      </span>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="text-brand-text-secondary/60 text-center py-10">
+                  No recently uploaded documents found.
+                </div>
+              )}
+            </div>
+          </div>
+        </CyberCard>
+
+        {/* SCADA Operations Terminal Logs */}
+        <CyberCard 
+          title="SCADA Operations Terminal Logs" 
+          subtitle="Real-time security checks and monitoring feeds"
         >
           <div className="w-full h-44 bg-brand-bg/50 border border-brand-primary/10 rounded-xl p-4 flex flex-col font-mono text-[10px] leading-relaxed overflow-hidden relative">
             <div 
@@ -358,6 +446,7 @@ export default function DashboardPage() {
             </div>
           </div>
         </CyberCard>
+
       </div>
 
       {/* SVG Gradient definition wrapper */}

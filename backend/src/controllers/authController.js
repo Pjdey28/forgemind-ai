@@ -75,7 +75,7 @@ const loginUser = async (req, res) => {
       })
     }
 
-    const user = await User.findOne({ email }).select("-password -refreshToken");
+    const user = await User.findOne({ email });
 
     // if (
     //   user &&
@@ -96,7 +96,7 @@ const loginUser = async (req, res) => {
         })
     }
 
-    const isPasswordValid = await User.isPasswordCorrect(password);
+    const isPasswordValid = await user.isPasswordCorrect(password);
 
     if (!isPasswordValid) {
       return res

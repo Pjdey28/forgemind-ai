@@ -79,7 +79,7 @@ export default function Footer() {
             © 2026 ForgeMind AI • ET AI Hackathon Problem Statement 8
           </div>
           <div className="flex items-center space-x-4">
-            <span>Powered by Gemini 1.5 Pro</span>
+            <span>Powered by Llama 3.3 (Groq)</span>
             <span>•</span>
             <span>ChromaDB</span>
             <span>•</span>

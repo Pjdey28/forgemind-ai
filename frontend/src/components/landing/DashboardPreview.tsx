@@ -135,7 +135,7 @@ export default function DashboardPreview() {
                 <div className="space-y-4 font-mono text-xs">
                   <div className="flex items-center justify-between border-b border-brand-border/60 pb-3">
                     <span className="text-brand-primary font-bold">QUERY: "Vibration troubleshooting for Turbine TB-902"</span>
-                    <span className="text-brand-success text-[10px]">VERIFIED BY GEMINI 1.5 PRO</span>
+                    <span className="text-brand-success text-[10px]">VERIFIED BY LLAMA 3.3 (GROQ)</span>
                   </div>
 
                   <p className="font-sans text-xs text-brand-text-primary font-light leading-relaxed bg-brand-surface/40 p-4 rounded-xl border border-brand-border/60">

@@ -68,7 +68,10 @@ const verifyJWT = async (req,res,next) => {
     next()
     
   } catch (error) {
-    console.log(error)
+    console.log("JWT Verification Error:", error);
+    return res.status(401).json({
+      message: "Invalid or expired token"
+    });
   }
 }
 

@@ -8,7 +8,7 @@ import CyberButton from "@/components/ui/CyberButton";
 export default function SettingsPage() {
   const [scadaInterval, setScadaInterval] = useState(3.0);
   const [ocrLanguage, setOcrLanguage] = useState("ENGLISH");
-  const [ragModel, setRagModel] = useState("gemini-1.5-flash");
+  const [ragModel, setRagModel] = useState("llama-3.3-70b");
 
   return (
     <div className="flex flex-col gap-6 select-none font-mono text-left">
@@ -50,9 +50,9 @@ export default function SettingsPage() {
                 onChange={(e) => setRagModel(e.target.value)}
                 className="bg-[#0d0f14] border border-brand-primary/10 focus:border-brand-primary text-brand-text-primary rounded-lg py-2.5 px-3 outline-none text-[10.5px] font-mono cursor-pointer"
               >
-                <option value="gemini-1.5-flash">Gemini 1.5 Flash (Latency Optimized)</option>
-                <option value="gemini-1.5-pro">Gemini 1.5 Pro (Accuracy Optimized)</option>
-                <option value="gemini-2.0-flash-exp">Gemini 2.0 Flash Experimental</option>
+                <option value="llama-3.3-70b">Llama 3.3 70B (High-Speed Reasoning)</option>
+                <option value="llama-3.2-90b">Llama 3.2 90B Vision (OCR Reasoning)</option>
+                <option value="llama-3.2-11b">Llama 3.2 11B (Latency Optimized)</option>
               </select>
             </div>
           </div>

@@ -4,7 +4,8 @@ class EmbeddingBuilder:
     def build(self, chunk, knowledge):
         metadata = {
             "filename": chunk.metadata.get("filename", "unknown"),
-            "section": chunk.section
+            "section": chunk.section,
+            "doc_id": chunk.metadata.get("doc_id", "unknown")
         }
         
         content = []

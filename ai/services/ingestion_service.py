@@ -37,4 +37,8 @@ class IngestionService:
             vector_record = self.embedding.create_vector_record(chunk, knowledge)
             self.indexing.index(knowledge, vector_record, doc_id=doc_id)
 
-        return True
+        return {
+            "doc_id": doc_id,
+            "filename": document.filename,
+            "chunks_count": len(chunks)
+        }

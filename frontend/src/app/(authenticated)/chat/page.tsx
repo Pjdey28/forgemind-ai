@@ -3,10 +3,13 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Send, Terminal, Sparkles, AlertCircle, HelpCircle } from "lucide-react";
 import CyberCard from "@/components/ui/CyberCard";
+import { askQuestion } from "@/services/apiServices";
 
 interface AILog {
   query: string;
   response: string;
+  confidence?: number;
+  citations?: Array<{ document: string; chunk: string }>;
   timestamp: string;
 }
 
@@ -29,7 +32,7 @@ export default function ChatPage() {
     }
   }, [aiLogs, typingOutput]);
 
-  const handlePromptSubmit = (e: React.FormEvent) => {
+  const handlePromptSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!promptInput.trim() || aiLoading) return;
 
@@ -38,43 +41,48 @@ export default function ChatPage() {
     setAiLoading(true);
     setTypingOutput("");
 
-    setTimeout(() => {
-      let response = "";
-      const q = query.toLowerCase();
-
-      if (q.includes("bypass") || q.includes("zone b")) {
-        response = "NO_ACTIVE_BYPASS_ENGAGED. Zone B pressure readings are stable at 42.1 PSI. All secondary relief valves verified compliant with ASTM D-302 standards. Reference: [ZoneB_Pressure_Regulations_2026.docx:Line 14].";
-      } else if (q.includes("manual") || q.includes("turbine")) {
-        response = "MANUAL_SEARCH: Turbine Generator A OEM specification requires structural vibration analysis every 90 days. Exhaust limits should not exceed 480°C under full load coefficient. Reference: [Turbine_Maintenance_Manual_v1.2.pdf:Page 4].";
-      } else if (q.includes("vector") || q.includes("embedding") || q.includes("chroma")) {
-        response = "VECTOR_INDEX_STATUS: Embeddings model: text-embedding-004. Dimensions: 1536. ChromaDB HNSW cosine distance configured. Total documents currently indexed: 3.";
-      } else if (q.includes("compressor") || q.includes("bearing")) {
-        response = "DIAGNOSTIC: Compressor C primary motor bearings anomalies observed. Root cause suggests lubrication oil decay. Schedule maintenance flush immediately. Reference: [ALT-088 Diagnostic Report].";
-      } else {
-        response = `SYNTHESIZED ANSWER: Prompt query parsed. Core cognitive graph suggests relations with active equipment (Zone B Exchanger) and indexed file "manuals". All telemetry vectors are normal. Latency: 19ms.`;
-      }
+    try {
+      const res = await askQuestion(query);
+      const responseData = res.data || {};
+      const responseText = responseData.answer || "No response compiled by the reasoning engine.";
+      const confidence = responseData.confidence || 0.85;
+      const citations = responseData.citations || [];
 
       let charIdx = 0;
       let currentString = "";
       const typeTimer = setInterval(() => {
-        currentString += response[charIdx];
-        setTypingOutput(currentString);
-        charIdx++;
-        if (charIdx >= response.length) {
+        if (charIdx < responseText.length) {
+          currentString += responseText[charIdx];
+          setTypingOutput(currentString);
+          charIdx++;
+        } else {
           clearInterval(typeTimer);
           setAiLoading(false);
           setAiLogs((prev) => [
             ...prev,
             {
               query,
-              response,
+              response: responseText,
+              confidence,
+              citations,
               timestamp: new Date().toLocaleTimeString(),
             },
           ]);
           setTypingOutput("");
         }
-      }, 10);
-    }, 600);
+      }, 5);
+    } catch (error) {
+      console.error("Chat prompt execution failed:", error);
+      setAiLoading(false);
+      setAiLogs((prev) => [
+        ...prev,
+        {
+          query,
+          response: "CONNECTION_FAILURE: Failed to establish session handshakes with the backend RAG reasoning core. Verify both the Node.js backend and FastAPI AI service are operating correctly.",
+          timestamp: new Date().toLocaleTimeString(),
+        },
+      ]);
+    }
   };
 
   const presetPrompts = [
@@ -111,9 +119,26 @@ export default function ChatPage() {
                   <span>{log.timestamp}</span>
                 </div>
                 <div className="text-brand-text-primary font-bold pr-2">{log.query}</div>
-                <div className="text-brand-success pt-2 flex items-start space-x-1.5 border-t border-brand-primary/5 mt-2 font-mono text-[10px] leading-relaxed">
-                  <span className="shrink-0 text-brand-success font-extrabold">[ RAG ]</span>
-                  <span className="break-all sm:break-normal">{log.response}</span>
+                <div className="text-brand-success pt-2 flex flex-col gap-2 border-t border-brand-primary/5 mt-2 font-mono text-[10px] leading-relaxed">
+                  <div className="flex items-start space-x-1.5">
+                    <span className="shrink-0 text-brand-success font-extrabold">[ RAG ]</span>
+                    <span className="break-all sm:break-normal">{log.response}</span>
+                  </div>
+                  {log.confidence !== undefined && (
+                    <div className="text-[8px] text-brand-text-secondary mt-1">
+                      CONFIDENCE: <span className="text-brand-primary font-bold">{(log.confidence * 100).toFixed(0)}%</span>
+                    </div>
+                  )}
+                  {log.citations && log.citations.length > 0 && (
+                    <div className="text-[8px] text-brand-text-secondary flex flex-wrap gap-1 mt-0.5">
+                      <span className="font-bold uppercase">Sources:</span>
+                      {log.citations.map((c, ci) => (
+                        <span key={ci} className="bg-brand-primary/10 border border-brand-primary/20 text-brand-primary px-1 rounded text-[7px] max-w-[180px] truncate" title={c.document}>
+                          {c.document} ({c.chunk.substring(0, 8)})
+                        </span>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
             ))}

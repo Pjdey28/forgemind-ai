@@ -16,8 +16,28 @@ async def upload(file: UploadFile):
     with open(path, "wb") as f:
         f.write(await file.read())
         
-    service.ingest(path)
+    res = service.ingest(path)
     
     return {
-        "status": "success"
+        "status": "success",
+        "doc_id": res["doc_id"],
+        "filename": res["filename"],
+        "chunks_count": res["chunks_count"]
+    }
+
+@router.delete("/upload/{doc_id}")
+def delete_document(doc_id: str):
+    # 1. Clear vector database index
+    from storage.chroma.repository import ChromaRepository
+    chroma = ChromaRepository()
+    chroma.delete(doc_id)
+    
+    # 2. Clear Knowledge Graph nodes/edges
+    from storage.neo4j.repository import Neo4jRepository
+    graph = Neo4jRepository()
+    graph.delete_by_doc_id(doc_id)
+    
+    return {
+        "status": "success",
+        "message": f"Document index with doc_id {doc_id} successfully deleted."
     }

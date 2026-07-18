@@ -17,7 +17,7 @@ export default function PlatformModules() {
       icon: Bot,
       tag: "CONVERSATIONAL RAG",
       title: "AI Engineering Assistant",
-      description: "Natural language Q&A engine powered by Gemini 1.5 Pro. Outputs verified telemetry data cards with exact document page citations.",
+      description: "Natural language Q&A engine powered by Llama 3.3. Outputs verified telemetry data cards with exact document page citations.",
       highlights: ["Sub-Second Vector Search", "Zero Hallucination Guarantee", "Interactive Telemetry Cards"],
     },
     {

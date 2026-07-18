@@ -8,19 +8,22 @@ const generateTokens = async (id) => {
   // );
 
   try {
-    const user = User.findById(id);
-    const accessToken = User.generateAccessToken();
-    const refreshToken = User.generateRefreshToken();
+    const user = await User.findById(id);
+    if (!user) {
+      throw new Error("User not found");
+    }
+    const accessToken = user.generateAccessToken();
+    const refreshToken = user.generateRefreshToken();
 
     user.refreshToken = refreshToken;
-    user.accessToken = accessToken;
 
     await user.save({validateBeforeSave: false});
 
     return {accessToken, refreshToken}
 
   } catch (error) {
-     console.log("Error :", error)
+     console.log("Error in generateTokens:", error);
+     throw error;
   }
 };
 

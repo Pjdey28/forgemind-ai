@@ -22,6 +22,7 @@ class DocumentLoader:
             metadata=metadata,
             processed_at=datetime.utcnow()
         )
+        document.metadata["doc_id"] = document.doc_id
         
         chunks = self.chunker.chunk(document)
         return {

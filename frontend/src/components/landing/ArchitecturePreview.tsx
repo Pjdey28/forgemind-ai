@@ -86,14 +86,14 @@ export default function ArchitecturePreview() {
     },
     {
       id: 5,
-      name: "6. Gemini RAG Orchestrator",
-      tech: "Gemini 1.5 Pro",
+      name: "6. Groq RAG Orchestrator",
+      tech: "Llama 3.3 (70B)",
       icon: Cpu,
-      latency: "310ms",
+      latency: "210ms",
       status: "RAG_REASONED",
       detail: "Synthesizes engineer queries with retrieved vector-graph context windows to generate verified answers with exact page citations.",
       jsonSnippet: `{
-  "model": "gemini-1.5-pro",
+  "model": "llama-3.3-70b",
   "temperature": 0.1,
   "anti_hallucination_check": true,
   "citations": ["Manual_Page_142_Paragraph_3"]
