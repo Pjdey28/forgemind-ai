@@ -33,10 +33,23 @@ jobs:
       - name: Archive AI Service
         run: |
           zip -r ../ai-service.zip . \
-          -x ".venv/*" \
-          -x "__pycache__/*" \
-          -x "*.pyc"
+            -x ".venv/*" \
+            -x "__pycache__/*" \
+            -x "*.pyc"
 
+      # 👇 ADD THESE TWO STEPS
+      - name: Verify AI Folder
+        run: |
+          pwd
+          ls -la
+          ls -la api
+
+      - name: Verify ZIP Contents
+        run: |
+          cd ..
+          unzip -l ai-service.zip
+
+      # 👇 Existing deploy step
       - name: Deploy to Azure
         uses: azure/webapps-deploy@v3
         with:
