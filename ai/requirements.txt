@@ -1,5 +1,5 @@
-https://download.pytorch.org/whl/cpu/torch-2.2.2%2Bcpu-cp311-cp311-linux_x86_64.whl
-https://download.pytorch.org/whl/cpu/torchvision-0.17.2%2Bcpu-cp311-cp311-linux_x86_64.whl
+https://download.pytorch.org/whl/cpu/torch-2.4.0%2Bcpu-cp311-cp311-linux_x86_64.whl
+https://download.pytorch.org/whl/cpu/torchvision-0.19.0%2Bcpu-cp311-cp311-linux_x86_64.whl
 pysqlite3-binary
 aiofiles
 aiohappyeyeballs
@@ -86,7 +86,7 @@ networkx
 ninja
 nltk
 numba
-numpy
+numpy<2.0.0
 oauthlib
 olefile
 onnxruntime
